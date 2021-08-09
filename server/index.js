@@ -12,8 +12,8 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.get("/weather-data", async (req, res) => {
-  const weatherData = await db.collection("weather").find({}).toArray();
-  console.log("got weather data = ", weatherData);
+  //   const weatherData = await db.collection("weather").find({}).toArray();
+  const weatherData = await getLatestWeather(100);
 
   res.status(200).send({ weatherData });
 });
@@ -21,7 +21,6 @@ app.get("/weather-data", async (req, res) => {
 app.post("/weather-update", (req, res) => {
   const { temperature, humidity } = req.body;
 
-  console.log("got temp, humidity = ", temperature, humidity);
   insertWeather(Number(temperature), Number(humidity));
 
   res.status(200).end();
@@ -34,19 +33,23 @@ const insertWeather = (temperature, humidity) => {
     { temperature, humidity, time: Date.now() },
     function (err, res) {
       if (err) throw err;
-      console.log("1 document inserted");
     }
   );
 };
 
-MongoClient.connect(url, function (err, _db) {
+MongoClient.connect(url, { useUnifiedTopology: true }, function (err, _db) {
   if (err) throw err;
   console.log("Connected to database!");
   db = _db.db("mydb");
-
-  //   db.createCollection("weather", function(err, res) {
-  //     if (err) throw err;
-  //     console.log("Collection created!");
-  //     _db.close();
-  //   });
 });
+
+const getLatestWeather = async (amount) => {
+  const weatherData = await db
+    .collection("weather")
+    .find()
+    .limit(amount)
+    .sort({ $natural: -1 })
+    .toArray();
+
+  return weatherData.reverse();
+};

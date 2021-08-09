@@ -39,9 +39,10 @@
 
 .weather-data-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  flex-wrap: wrap;
+  /* flex-direction: column; */
+  /* align-items: center; */
+  /* justify-content: center; */
 }
 
 .data-point-container {
@@ -49,4 +50,9 @@
   border: 1px solid black;
   width: fit-content;
   padding: 10px;
+}
+
+.weather-data-title {
+  font-size: 30px;
+  width: 100%;
 }
